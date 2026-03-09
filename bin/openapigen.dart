@@ -42,7 +42,11 @@ void main(List<String> args) async {
 
     // perform generation on openapi spec
     logger.info('Begin generating code from OpenAPI spec');
-    final code = generateSchemaFromOpenAPI(openAPI, outputFile: outputFile);
+    final code = generateSchemaFromOpenAPI(
+      openAPI,
+      interfaceName: argResult['schema-name'] as String?,
+      outputFile: outputFile,
+    );
     logger.info('Finished generating code from OpenAPI spec');
 
     // write to file

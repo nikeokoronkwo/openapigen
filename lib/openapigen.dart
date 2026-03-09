@@ -63,10 +63,8 @@ String generateSchemaFromOpenAPI(
   }).flattenedToList;
 
   final docs = docsFrom(
-    summary:
-        '''# ${openapi.info.title} v${openapi.info.version}
-License Info: ${openapi.info.license?.name ?? 'None'} (${openapi.info.license?.url})
-''',
+    summary: '''# ${openapi.info.title} v${openapi.info.version}
+License Info: ${openapi.info.license?.name ?? 'None'} (${openapi.info.license?.url})''',
     description: openapi.info.description,
   );
 
