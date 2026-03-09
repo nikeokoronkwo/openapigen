@@ -262,6 +262,10 @@ code.Method generateOperation(
                       : code.refer('dynamic'),
               });
           });
+        } else if (responseSchemaType == 'application/octet-stream' ||
+            responseSchemaType == 'application/x-tar' ||
+            responseSchemaType == 'application/gzip') {
+          m.returns = code.refer('StreamedContent');
         } else {
           m.returns = code.TypeReference((t) {
             t

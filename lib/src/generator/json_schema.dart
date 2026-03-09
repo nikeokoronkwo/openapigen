@@ -464,7 +464,7 @@ code.Reference generateSchemaType(
         final constructorParams = <code.Parameter>[];
 
         properties.forEach((k, v) {
-          final isRequired = requiredProperties.contains(k);
+          final isRequired = requiredProperties.contains(k) && !v.nullable;
           final type = generateSchemaType(v, isNullable: !isRequired);
 
           fields.add(
