@@ -265,7 +265,12 @@ code.Method generateOperation(
         } else if (responseSchemaType == 'application/octet-stream' ||
             responseSchemaType == 'application/x-tar' ||
             responseSchemaType == 'application/gzip') {
-          m.returns = code.refer('StreamedContent');
+          m.returns = code.TypeReference((t) {
+            t
+              ..symbol = 'FutureOr'
+              ..url = 'dart:async'
+              ..types.add(code.refer('StreamedContent'));
+          });
         } else {
           m.returns = code.TypeReference((t) {
             t
