@@ -104,7 +104,11 @@ class TypeOrReference<T> {
     Map<String, dynamic>? resolutionObject,
   }) {
     if (reference != null) {
-      return reference!.resolveJson(json, fromJsonT: _fromJsonT);
+      return reference!.resolveJson(
+        json,
+        resolutionObject: resolutionObject,
+        fromJsonT: _fromJsonT,
+      );
     } else {
       return value!;
     }

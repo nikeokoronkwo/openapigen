@@ -193,6 +193,40 @@ code.Method generateOperation(
       );
     }
 
+    // Generate schema types for ALL responses to ensure they're available
+    // for error handling and other uses, not just the main success response
+    void generateResponseSchemas(TypeOrReference<Response> responseRef) {
+      final response = responseRef.resolveJson(
+        openApiJson,
+        resolutionObject: resolvedComponentsObject,
+      );
+      if (response.content case final responseContent?) {
+        for (final contentEntry in responseContent.entries) {
+          final responseMediaType = contentEntry.value;
+          final schemaObject = responseMediaType.schema?.resolveJson(
+            openApiJson,
+            resolutionObject: resolvedComponentsObject,
+          );
+          if (schemaObject != null) {
+            // This call ensures the schema type gets generated and stored
+            generateSchemaType(schemaObject);
+          }
+        }
+      }
+    }
+
+    // Generate types for default response
+    if (operation.responses.defaultResponse case final defaultResponse?) {
+      generateResponseSchemas(defaultResponse);
+    }
+
+    // Generate types for all status code responses
+    if (operation.responses.statusCodeResponses case final statusResponses?) {
+      for (final responseRef in statusResponses.values) {
+        generateResponseSchemas(responseRef);
+      }
+    }
+
     // TODO: bug: We only make use of the main response or 200 response for
     //  the return type of the method because Dart doesn't have an awesome way
     //  of working with multiple types
