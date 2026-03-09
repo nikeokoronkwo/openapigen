@@ -1,0 +1,5 @@
+*.lock
+
+.dart_tool
+
+*.exe

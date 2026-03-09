@@ -41,17 +41,124 @@ code.Reference generateSchemaType(
           ..isNullable = isNullable,
       );
     case SchemaType.string:
-      return code.TypeReference(
-        (t) => t
-          ..symbol = 'String'
-          ..isNullable = isNullable,
-      );
+      if (schema.jsonSchemaEnum != null) {
+        // enum of string values
+        final enumValues = schema.jsonSchemaEnum!.map((v) => v.toString());
+
+        final schemaEnum = enumsStore.putIfAbsent(schema, () {
+          return code.Enum(
+            (e) => e
+              ..name = title
+              ..values.addAll(
+                enumValues.map((v) => v.toString()).map((v) {
+                  return code.EnumValue(
+                    (val) => val
+                      ..name = v.startsWith(RegExp(r'\d')) ? '\$$v' : v
+                      ..arguments.add(code.literalString(v)),
+                  );
+                }),
+              )
+              ..annotations.add(
+                code.refer('JsonEnum').call([], {
+                  'valueField': code.literalString('value'),
+                }),
+              )
+              ..constructors.add(
+                code.Constructor(
+                  (c) => c
+                    ..constant = true
+                    ..requiredParameters.add(
+                      code.Parameter(
+                        (p) => p
+                          ..name = 'value'
+                          ..toThis = true,
+                      ),
+                    ),
+                ),
+              )
+              ..fields.add(
+                code.Field(
+                  (f) => f
+                    ..name = 'value'
+                    ..modifier = code.FieldModifier.final$
+                    ..type = code.refer('String'),
+                ),
+              ),
+          );
+        });
+
+        return code.TypeReference(
+          (t) => t
+            ..symbol = schemaEnum.name
+            ..isNullable = isNullable,
+        );
+      } else {
+        return code.TypeReference(
+          (t) => t
+            ..symbol = 'String'
+            ..isNullable = isNullable,
+        );
+      }
     case SchemaType.integer:
-      return code.TypeReference(
-        (t) => t
-          ..symbol = 'int'
-          ..isNullable = isNullable,
-      );
+      if (schema.jsonSchemaEnum != null &&
+          schema.jsonSchemaEnum!.every((v) => v is int)) {
+        // enum of integer values
+        final enumValues = schema.jsonSchemaEnum!.whereType<int>();
+
+        final schemaEnum = enumsStore.putIfAbsent(schema, () {
+          return code.Enum(
+            (e) => e
+              ..name = title
+              ..values.addAll(
+                enumValues.whereType<int>().map((v) {
+                  return code.EnumValue(
+                    (val) => val
+                      ..name = '\$$v'
+                      ..arguments.add(code.literalNum(v)),
+                  );
+                }),
+              )
+              ..annotations.add(
+                code.refer('JsonEnum').call([], {
+                  'valueField': code.literalString('value'),
+                }),
+              )
+              ..constructors.add(
+                code.Constructor(
+                  (c) => c
+                    ..constant = true
+                    ..requiredParameters.add(
+                      code.Parameter(
+                        (p) => p
+                          ..name = 'value'
+                          ..toThis = true,
+                      ),
+                    ),
+                ),
+              )
+              ..fields.add(
+                code.Field(
+                  (f) => f
+                    ..name = 'value'
+                    ..modifier = code.FieldModifier.final$
+                    ..type = code.refer('int'),
+                ),
+              ),
+          );
+        });
+
+        return code.TypeReference(
+          (t) => t
+            ..symbol = schemaEnum.name
+            ..isNullable = isNullable,
+        );
+      } else {
+        return code.TypeReference(
+          (t) => t
+            ..symbol = 'int'
+            ..isNullable = isNullable,
+        );
+      }
     case SchemaType.boolean:
       return code.TypeReference(
         (t) => t
